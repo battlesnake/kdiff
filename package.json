@@ -1,0 +1,24 @@
+{
+  "name": "kdiff",
+  "version": "1.0.0",
+  "description": "Diff kernel config files in an easy-to-read way",
+  "main": "kdiff",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/battlesnake/kdiff.git"
+  },
+  "keywords": [
+    "kernel",
+    "diff",
+    "config"
+  ],
+  "author": "Mark K Cowan",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/battlesnake/kdiff/issues"
+  },
+  "homepage": "https://github.com/battlesnake/kdiff#readme"
+}

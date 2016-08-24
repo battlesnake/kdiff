@@ -1,0 +1,61 @@
+#!/usr/bin/node
+'use strict';
+
+const fs = require('fs');
+
+/* NPM can go fuck itself */
+const _ = require('/usr/lib/node_modules/lodash/');
+
+function File(name) {
+	return {
+		name: name,
+		data: new Map(fs.readFileSync(name, { encoding: 'utf-8' })
+			.split('\n')
+			.filter(s => !/^#?\s*$/.test(s))
+			.map(s => s.trim())
+			.map(s => {
+				const m = s.match(/^CONFIG_(\S+)=(.*)$/);
+				return m ? [m[1], m[2]] : null;
+			})
+			.filter(m => m))
+	};
+}
+
+if (process.argv.length !== 4) {
+	throw new Error('Two arguments required');
+}
+
+const prev = new File(process.argv[2]);
+const next = new File(process.argv[3]);
+
+const add = _.difference([...next.data.keys()], [...prev.data.keys()])
+	.sort();
+const mod = _.intersection([...next.data.keys()], [...prev.data.keys()])
+	.filter(key => prev.data.get(key) !== next.data.get(key))
+	.sort();
+const del = _.difference([...prev.data.keys()], [...next.data.keys()])
+	.sort();
+
+const format = (file, key) => {
+	return (file.data.get(key)
+		.replace(/^y$/, '\x1b[32m$&\x1b[0m')
+		.replace(/^n$/, '\x1b[31m$&\x1b[0m')
+		.replace(/^m$/, '\x1b[36m$&\x1b[0m')
+		.replace(/^\d+$/, '\x1b[35m$&\x1b[0m')
+		.replace(/^".*"$/, '\x1b[33m$&\x1b[0m')
+		);
+};
+
+console.log(`Changes creating \x1b[90;4m${next.name}\x1b[0m from \x1b[90;4m${prev.name}\x1b[0m \x1b[32m+${add.length} \x1b[31m-${del.length} \x1b[33m~${mod.length}\x1b[0m\n`);
+
+[...add].forEach(key => {
+	console.log(` \x1b[32m+\x1b[0m \x1b[90mCONFIG_\x1b[0m${key} = ${format(next, key)}\x1b[0m`);
+});
+
+[...mod].forEach(key => {
+	console.log(` \x1b[33m~\x1b[0m \x1b[90mCONFIG_\x1b[0m${key} = ${format(next, key)} from ${format(prev, key)}\x1b[0m`);
+});
+
+[...del].forEach(key => {
+	console.log(` \x1b[31m-\x1b[0m \x1b[90mCONFIG_\x1b[0m${key} = ${format(prev, key)}\x1b[0m`);
+});

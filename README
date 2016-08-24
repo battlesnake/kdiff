@@ -1,0 +1,5 @@
+Usage:
+
+	`kdiff <config1> <config2>`
+
+Often, you will want to pipe this through `less -R`
